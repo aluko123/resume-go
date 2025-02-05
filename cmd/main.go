@@ -48,6 +48,8 @@ func main() {
 	router.HandleFunc("/resumes/{id}", resumeHandler.UpdateResume).Methods("PUT")
 	router.HandleFunc("/resumes/{id}", resumeHandler.DeleteResume).Methods("DELETE")
 	router.HandleFunc("/resumes/{id}/education", resumeHandler.UpdateEducation).Methods("PUT")
+	router.HandleFunc("/resumes/{id}/experience", resumeHandler.UpdateExperience).Methods("PUT")
+
 	//start server
 	log.Println("Server starting on port 8080...")
 	if err := http.ListenAndServe(":8080", router); err != nil {

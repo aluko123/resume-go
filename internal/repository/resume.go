@@ -111,7 +111,7 @@ func (r *ResumeRepository) Create(ctx context.Context, resume *models.Resume) er
 
 // get resume ID
 func (r *ResumeRepository) GetByID(ctx context.Context, id string) (*models.Resume, error) {
-	log.Printf("Resume id: %v", id)
+	//log.Printf("Resume id: %v", id)
 	resumeID, err := strconv.Atoi(id)
 	if err != nil {
 		return nil, errors.New("invalid resume ID: must be an integer")

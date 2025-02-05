@@ -98,6 +98,7 @@ func (h *ResumeHandler) UpdateEducation(w http.ResponseWriter, r *http.Request) 
 
 	var education []models.Education
 	if err := json.NewDecoder(r.Body).Decode(&education); err != nil {
+		log.Printf("Error decoding: %v", education)
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
