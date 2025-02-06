@@ -58,25 +58,96 @@ var createCmd = &cobra.Command{
 			return fmt.Errorf("error getting basic info %w", err)
 		}
 
-		fmt.Print("Enter Basic Info (JSON format):\n")
-		var basicInfo map[string]interface{} = make(map[string]interface{})
-		decoder := json.NewDecoder(os.Stdin)
-		if err := decoder.Decode(&basicInfo); err != nil {
-			return fmt.Errorf("error decoding basic info: %w", err)
-		}
-		//newResumeData["basic_info"] = basicInfo
+		//education example
+		newResumeData.Education = []models.Education{}
+		addMoreEducation := true
+		for addMoreEducation {
+			var educationEntry models.Education
+			err := survey.Ask([]*survey.Question{
+				{
+					Name:      "institution",
+					Prompt:    &survey.Input{Message: "Institution?"},
+					Validate:  survey.Required,
+					Transform: survey.Title,
+				},
 
-		fmt.Print("Enter Education (JSON format, or press Enter to skip):\n")
-		var educationUpdates []interface{} = make([]interface{}, 0)
-		if _, err := fmt.Scanln(); err == nil {
-			decoder := json.NewDecoder(os.Stdin)
-			if err := decoder.Decode(&educationUpdates); err != nil {
-				return fmt.Errorf("error decoding education: %w", err)
+				{
+					Name:      "degree",
+					Prompt:    &survey.Input{Message: "Degree?"},
+					Validate:  survey.Required,
+					Transform: survey.Title,
+				},
+				{
+					Name:      "startdate",
+					Prompt:    &survey.Input{Message: "Start Date (e.g. Aug 2024)?"},
+					Validate:  survey.Required,
+					Transform: survey.Title,
+				},
+				{
+					Name:      "enddate",
+					Prompt:    &survey.Input{Message: "End Date (e.g. Aug 2024)?"},
+					Validate:  survey.Required,
+					Transform: survey.Title,
+				},
+				{
+					Name:      "gpa",
+					Prompt:    &survey.Input{Message: "GPA?"},
+					Transform: survey.Title,
+				},
+			}, &educationEntry)
+
+			if err != nil {
+				fmt.Println("error getting education info %w", err)
+			}
+
+			educationEntry.Coursework = []string{}
+
+			addCoursework := true
+			for addCoursework {
+				course := ""
+				err := &survey.Input{
+					Message: "Enter coursework (or press Enter to finish):",
+				}
+				survey.AskOne(err, &course)
+
+				if course != "" {
+					educationEntry.Coursework = append(educationEntry.Coursework, course)
+				} else {
+					addCoursework = false //user pressed enter
+				}
+			}
+
+			//fmt.Println(newResumeData.BasicInfo)
+			newResumeData.Education = append(newResumeData.Education, educationEntry)
+			val := ""
+			prompt := &survey.Input{
+				Message: "Add another education entry? (True or false)",
+			}
+			survey.AskOne(prompt, &val)
+			if val == "false" {
+				addMoreEducation = false //user doesn't want more education entry
 			}
 		}
-		if len(educationUpdates) > 0 {
-			newResumeData["education"] = educationUpdates
-		}
+
+		// fmt.Print("Enter Basic Info (JSON format):\n")
+		// var basicInfo map[string]interface{} = make(map[string]interface{})
+		// decoder := json.NewDecoder(os.Stdin)
+		// if err := decoder.Decode(&basicInfo); err != nil {
+		// 	return fmt.Errorf("error decoding basic info: %w", err)
+		// }
+		// //newResumeData["basic_info"] = basicInfo
+
+		// fmt.Print("Enter Education (JSON format, or press Enter to skip):\n")
+		// var educationUpdates []interface{} = make([]interface{}, 0)
+		// if _, err := fmt.Scanln(); err == nil {
+		// 	decoder := json.NewDecoder(os.Stdin)
+		// 	if err := decoder.Decode(&educationUpdates); err != nil {
+		// 		return fmt.Errorf("error decoding education: %w", err)
+		// 	}
+		// }
+		// if len(educationUpdates) > 0 {
+		// 	newResumeData["education"] = educationUpdates
+		// }
 
 		fmt.Print("Enter Experience (JSON format, or press Enter to skip):\n")
 		var experienceUpdates []interface{} = make([]interface{}, 0)
